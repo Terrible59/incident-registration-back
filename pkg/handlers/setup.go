@@ -1,9 +1,13 @@
 package handlers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	db "incidents_back/db/sqlc"
+)
 
 type SetupConfig struct {
-	App *fiber.App
+	App  *fiber.App
+	Repo *db.Repo
 }
 
 func SetupRoutes(config *SetupConfig) {
@@ -13,5 +17,17 @@ func SetupRoutes(config *SetupConfig) {
 		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "hello",
 		})
+	})
+
+	incidents := api.Group("/incidents")
+	incidents.Get("/", func(ctx *fiber.Ctx) error {
+		inc, err := config.Repo.GetAllIncidents(ctx.Context())
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Something went wrong",
+			})
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(inc)
 	})
 }

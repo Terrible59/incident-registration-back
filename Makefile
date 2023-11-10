@@ -1,4 +1,7 @@
 run:
 	go run cmd/main.go
 
-.PHONY: run
+sqlc:
+	sqlc generate
+
+.PHONY: run sqlc
