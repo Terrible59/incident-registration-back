@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/gofiber/fiber/v2"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"incidents_back/pkg/services"
 	"strings"
 )
@@ -34,8 +38,14 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 
 	response, err := services.Login(params.Email, params.Password, h.Repo, h.Maker)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid credentials",
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) || errors.Is(err, sql.ErrNoRows) {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Invalid credentials",
+			})
+		}
+		log.WithError(err).Error("login error")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong",
 		})
 	}
 

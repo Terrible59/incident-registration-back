@@ -26,4 +26,7 @@ func TestCheckPassword(t *testing.T) {
 
 	err = CheckPassword(password, hashedPassword)
 	require.EqualError(t, err, bcrypt.ErrMismatchedHashAndPassword.Error())
+
+	err = CheckPassword("test123", "$2a$10$jUOo/SnKN.kg2NgNFmZ7O.m2DPWmU9NczejYe3cfDL79ijvroum3q")
+	require.NoError(t, err)
 }
