@@ -2,32 +2,98 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"gopkg.in/go-playground/validator.v9"
 	db "incidents_back/db/sqlc"
+	"incidents_back/pkg/middleware/authentication"
+	"incidents_back/pkg/middleware/role"
+	"incidents_back/pkg/utils"
 )
 
 type SetupConfig struct {
-	App  *fiber.App
-	Repo *db.Repo
+	App       *fiber.App
+	Repo      *db.Repo
+	Maker     *utils.Maker
+	Validator *validator.Validate
+}
+
+// Handlers Struct to store utilities shared across all handlers
+type Handlers struct {
+	Repo      *db.Repo
+	Maker     *utils.Maker
+	Validator *validator.Validate
+}
+
+// NewHandlers Make new Handlers struct
+func NewHandlers(repo *db.Repo, maker *utils.Maker, validator *validator.Validate) *Handlers {
+	return &Handlers{Repo: repo, Maker: maker, Validator: validator}
 }
 
 func SetupRoutes(config *SetupConfig) {
+	config.App.Use(compress.New(compress.Config{
+		Level: compress.LevelBestCompression,
+	}))
+
+	config.App.Use(cors.New(cors.Config{
+		AllowOrigins:     utils.GetEnv("ALLOWED_ORIGINS", "*"),
+		AllowMethods:     "POST,GET,PUT,DELETE,HEAD,PATCH,OPTIONS",
+		AllowCredentials: true,
+	}))
+
+	config.App.Use(limiter.New(limiter.Config{
+		Max: 240,
+	}))
+
+	config.App.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
+	}))
+
+	authConfig := &authentication.Config{
+		Filter: nil,
+		Maker:  config.Maker,
+	}
+
+	authMiddleware := authentication.New(authConfig)
+
+	moderConfig := &role.Config{
+		Filter: nil,
+		Repo:   config.Repo,
+		Role:   1,
+	}
+
+	moderMiddleware := role.New(moderConfig)
+
+	adminConfig := &role.Config{
+		Filter: nil,
+		Repo:   config.Repo,
+		Role:   2,
+	}
+
+	adminMiddleware := role.New(adminConfig)
+
+	handlers := NewHandlers(config.Repo, config.Maker, config.Validator)
+
 	api := config.App.Group("/api/v1")
 
-	api.Get("/hello", func(ctx *fiber.Ctx) error {
-		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-			"message": "hello",
-		})
-	})
+	auth := api.Group("/auth")
+	auth.Post("login", handlers.login)
+	auth.Post("register", handlers.register)
+	auth.Post("refresh", handlers.refresh)
 
-	incidents := api.Group("/incidents")
-	incidents.Get("/", func(ctx *fiber.Ctx) error {
-		inc, err := config.Repo.GetAllIncidents(ctx.Context())
-		if err != nil {
-			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": "Something went wrong",
-			})
-		}
+	incidents := api.Group("/incidents").Use(authMiddleware)
+	incidents.Get("/", handlers.getAllIncidents)
+	incidents.Get("/:incidentID", handlers.getIncident)
+	incidents.Post("/", adminMiddleware, handlers.createIncident)
+	incidents.Put("/:incidentID", moderMiddleware, handlers.updateIncident)
+	incidents.Delete("/:incidentID", adminMiddleware, handlers.deleteIncident)
 
-		return ctx.Status(fiber.StatusOK).JSON(inc)
-	})
+	individuals := api.Group("/individuals").Use(authMiddleware)
+	individuals.Get("/", handlers.getAllIndividuals)
+	individuals.Get("/:individualID", handlers.getIndividual)
+	individuals.Post("/", adminMiddleware, handlers.createIndividual)
+	individuals.Put("/:individualID", moderMiddleware, handlers.updateIndividual)
+	individuals.Delete("/:individualID", adminMiddleware, handlers.deleteIndividual)
 }

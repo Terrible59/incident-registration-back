@@ -9,6 +9,11 @@
           "go_type": "github.com/gofrs/uuid.UUID"
         },
         {
+          "db_type": "text",
+          "nullable": true,
+          "go_type": "github.com/guregu/null.String"
+        },
+        {
           "db_type": "numeric",
           "go_type": "float64"
         },

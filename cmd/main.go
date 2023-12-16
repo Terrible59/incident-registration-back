@@ -9,6 +9,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/go-playground/validator.v9"
 	db "incidents_back/db/sqlc"
 	"incidents_back/pkg/handlers"
 	"incidents_back/pkg/utils"
@@ -38,9 +39,18 @@ func main() {
 		IdleTimeout: time.Minute,
 	})
 
+	tokenMaker, err := utils.NewMaker(utils.GetEnv("PASETO_KEY", ""), utils.GetEnv("PASETO_REFRESH_KEY", ""))
+	if err != nil {
+		log.Fatal("Invalid key size")
+	}
+
+	validate := validator.New()
+
 	handlers.SetupRoutes(&handlers.SetupConfig{
-		App:  app,
-		Repo: repo,
+		App:       app,
+		Repo:      repo,
+		Validator: validate,
+		Maker:     tokenMaker,
 	})
 
 	if err := app.Listen(":8888"); err != nil {

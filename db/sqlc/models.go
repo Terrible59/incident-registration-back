@@ -5,7 +5,6 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -13,30 +12,46 @@ import (
 )
 
 type Decision struct {
-	ID           uuid.UUID      `json:"id"`
-	IncidentID   uuid.UUID      `json:"incident_id"`
-	DecisionType sql.NullString `json:"decision_type"`
+	ID           uuid.UUID   `json:"id"`
+	IncidentID   uuid.UUID   `json:"incident_id"`
+	DecisionType null.String `json:"decision_type"`
 }
 
 type Incident struct {
-	ID               uuid.UUID      `json:"id"`
-	RegistrationDate time.Time      `json:"registration_date"`
-	Summary          sql.NullString `json:"summary"`
-	IncidentType     sql.NullString `json:"incident_type"`
+	ID               uuid.UUID   `json:"id"`
+	RegistrationDate time.Time   `json:"registration_date"`
+	Summary          null.String `json:"summary"`
+	IncidentType     null.String `json:"incident_type"`
 }
 
 type IncidentIndividualLink struct {
-	ID           uuid.UUID      `json:"id"`
-	IncidentID   uuid.UUID      `json:"incident_id"`
-	IndividualID uuid.UUID      `json:"individual_id"`
-	Role         sql.NullString `json:"role"`
+	ID           uuid.UUID   `json:"id"`
+	IncidentID   uuid.UUID   `json:"incident_id"`
+	IndividualID uuid.UUID   `json:"individual_id"`
+	Role         null.String `json:"role"`
 }
 
 type Individual struct {
-	ID                   uuid.UUID      `json:"id"`
-	FirstName            sql.NullString `json:"first_name"`
-	LastName             sql.NullString `json:"last_name"`
-	MiddleName           sql.NullString `json:"middle_name"`
-	Address              sql.NullString `json:"address"`
-	CriminalRecordsCount null.Int       `json:"criminal_records_count"`
+	ID                   uuid.UUID   `json:"id"`
+	FirstName            null.String `json:"first_name"`
+	LastName             null.String `json:"last_name"`
+	MiddleName           null.String `json:"middle_name"`
+	Address              null.String `json:"address"`
+	CriminalRecordsCount null.Int    `json:"criminal_records_count"`
+}
+
+type Token struct {
+	ID        uuid.UUID `json:"id"`
+	Token     string    `json:"token"`
+	UserID    uuid.UUID `json:"user_id"`
+	CreatedAt null.Time `json:"created_at"`
+	ExpiresAt null.Time `json:"expires_at"`
+}
+
+type User struct {
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Role      int32     `json:"role"`
+	CreatedAt null.Time `json:"created_at"`
 }

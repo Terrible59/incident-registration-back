@@ -6,10 +6,28 @@ package db
 
 import (
 	"context"
+
+	"github.com/gofrs/uuid"
 )
 
 type Querier interface {
+	CreateIncident(ctx context.Context, arg CreateIncidentParams) (Incident, error)
+	CreateIndividual(ctx context.Context, arg CreateIndividualParams) (Individual, error)
+	CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteIncident(ctx context.Context, id uuid.UUID) error
+	DeleteIndividual(ctx context.Context, id uuid.UUID) error
+	DeleteToken(ctx context.Context, id uuid.UUID) error
+	DeleteUsersTokens(ctx context.Context, userID uuid.UUID) error
 	GetAllIncidents(ctx context.Context) ([]Incident, error)
+	GetAllIndividuals(ctx context.Context) ([]Individual, error)
+	GetIncidentById(ctx context.Context, id uuid.UUID) (Incident, error)
+	GetIndividualById(ctx context.Context, id uuid.UUID) (Individual, error)
+	GetToken(ctx context.Context, token string) (Token, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+	GetUserById(ctx context.Context, id uuid.UUID) (User, error)
+	UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (Incident, error)
+	UpdateIndividual(ctx context.Context, arg UpdateIndividualParams) (Individual, error)
 }
 
 var _ Querier = (*Queries)(nil)
