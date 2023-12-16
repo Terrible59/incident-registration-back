@@ -11,6 +11,7 @@ services:
   postgres:
     restart: always
     image: postgres:15.2
+    command: "postgres -p 5444"
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -19,7 +20,7 @@ services:
       - ~/incident_volume:/docker-entrypoint-initdb.d
       - ~/incident_volume:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5444:5444"
     networks:
       - back
 
@@ -27,7 +28,7 @@ services:
     restart: always
     image: nginx:alpine3.17
     ports:
-      - "80:80"
+      - "81:80"
     volumes:
       - build_output:/var/www/html
       - ./cfg/nginx/nginx.conf:/etc/nginx/nginx.conf
