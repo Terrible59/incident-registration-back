@@ -53,7 +53,7 @@ func main() {
 		Maker:     tokenMaker,
 	})
 
-	if err := app.Listen(":8888"); err != nil {
+	if err := app.Listen(":8889"); err != nil {
 		log.WithError(err).Fatal("server failed to start!")
 	}
 }
