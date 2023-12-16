@@ -53,13 +53,15 @@ services:
     build: ./
     restart: always
     ports:
-      - "8888:8888"
+      - "8889:8888"
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+      - PASETO_KEY=${PASETO_KEY}
+      - PASETO_REFRESH_KEY=${PASETO_REFRESH_KEY}
     networks:
       - back
     depends_on:
