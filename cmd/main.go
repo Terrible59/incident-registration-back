@@ -39,7 +39,7 @@ func main() {
 		IdleTimeout: time.Minute,
 	})
 
-	tokenMaker, err := utils.NewMaker(utils.GetEnv("PASETO_KEY", ""), utils.GetEnv("PASETO_REFRESH_KEY", ""))
+	tokenMakerr, err := utils.NewMaker(utils.GetEnv("PASETO_KEY", ""), utils.GetEnv("PASETO_REFRESH_KEY", ""))
 	if err != nil {
 		log.Fatal("Invalid key size")
 	}
@@ -50,7 +50,7 @@ func main() {
 		App:       app,
 		Repo:      repo,
 		Validator: validate,
-		Maker:     tokenMaker,
+		Maker:     tokenMakerr,
 	})
 
 	if err := app.Listen(":8888"); err != nil {
