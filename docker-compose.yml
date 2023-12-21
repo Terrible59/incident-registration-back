@@ -39,7 +39,7 @@ services:
       - frontend
 
   frontend:
-    build: ../incident-registration-front
+    image: kubalovpasha/incident-front
     volumes:
       - build_output:/app/dist
     environment:
