@@ -194,7 +194,7 @@ func Refresh(oldRefreshToken string, userId uuid.UUID, repo *db.Repo, maker *uti
 
 	response := &AuthResponse{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		RefreshToken: accessToken,
 		ExpiresAt:    time.Now().Add(constants.AccessTokenLifetime),
 		User:         &user,
 	}
