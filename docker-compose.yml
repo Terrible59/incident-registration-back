@@ -50,7 +50,7 @@ services:
       - backend
 
   backend:
-    build: ./
+    image: kubalovpasha/incident-back
     restart: always
     ports:
       - "8889:8888"
